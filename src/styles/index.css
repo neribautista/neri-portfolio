@@ -291,6 +291,18 @@ html {
   transition: color 0.2s;
 }
 
+/* ─── MOBILE ACTIONS (compact toggle + hamburger) ─────────────────────────── */
+
+.nav__mobile-actions {
+  display: none;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggle--compact {
+  display: none;
+}
+
 /* ─── HAMBURGER BUTTON (hidden on desktop) ─────────────────────────────────── */
 
 .nav__hamburger {
@@ -350,6 +362,16 @@ html {
 /* ─── MOBILE NAV ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
+  .nav__mobile-actions {
+    display: flex;
+  }
+
+  .nav__mobile-actions .toggle--compact {
+    display: flex;
+    padding: 4px;
+    gap: 0;
+  }
+
   .nav__hamburger {
     display: block;
   }
@@ -385,6 +407,11 @@ html {
 
   .toggle {
     padding: 6px 0;
+  }
+
+  /* Hide the labeled toggle inside the slide-out menu on mobile */
+  .nav__right .toggle {
+    display: none;
   }
 
   .nav__badge {

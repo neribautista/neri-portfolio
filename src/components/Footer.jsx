@@ -8,9 +8,9 @@ export default function Footer({ data, isPast }) {
         © 2026 Nerissa Bautista · Built with React
       </div>
       <div className="footer__text" style={{ color: data.subtleColor }}>
-        Toggle the switch to see my{" "}
+        Toggle the switch above to see my{" "}
         <span style={{ color: data.accentColor, fontWeight: 700 }}>
-          {isPast ? "Tech Era →" : "Business Era →"}
+          {isPast ? "Tech Era ↑" : "Business Era ↑"}
         </span>
       </div>
     </footer>

@@ -102,15 +102,27 @@ export default function NavBar({ data, isPast, onToggle, present, past }) {
         </span>
       </div>
 
-      {/* Hamburger button — mobile only */}
-      <button
-        className="nav__hamburger"
-        onClick={() => setMenuOpen((v) => !v)}
-        aria-label="Toggle menu"
-        style={{ color: data.textColor }}
-      >
-        <span className={`nav__hamburger-icon ${menuOpen ? "nav__hamburger-icon--open" : ""}`} />
-      </button>
+      {/* Mobile: compact toggle + hamburger */}
+      <div className="nav__mobile-actions">
+        <button
+          className="toggle toggle--compact"
+          onClick={onToggle}
+          title={isPast ? "Switch to Tech Era" : "Switch to Biz Era"}
+        >
+          <div className="toggle__track" style={{ background: isPast ? past.accentColor : present.accentColor }}>
+            <div className="toggle__thumb" style={{ left: isPast ? "27px" : "3px" }} />
+          </div>
+        </button>
+
+        <button
+          className="nav__hamburger"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label="Toggle menu"
+          style={{ color: data.textColor }}
+        >
+          <span className={`nav__hamburger-icon ${menuOpen ? "nav__hamburger-icon--open" : ""}`} />
+        </button>
+      </div>
 
       <div className={`nav__right ${menuOpen ? "nav__right--open" : ""}`}
         style={menuOpen ? { background: isPast ? "#fdfaf4" : "#141414" } : undefined}
