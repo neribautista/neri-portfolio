@@ -85,40 +85,52 @@ export default function ExperienceSection({ data, isPast }) {
             const meta = CATEGORY_META[category] || { icon: "/icons/forex.png", tagline: "" };
             const isOpen = openCategory === category;
             return (
-              <button
-                key={category}
-                className={`exp-category__card ${isOpen ? "exp-category__card--open" : ""}`}
-                onClick={() => setOpenCategory(isOpen ? null : category)}
-                style={{
-                  background: isOpen ? `${data.accentColor}15` : data.cardBg,
-                  border: `1px solid ${isOpen ? data.accentColor + "50" : data.accentColor + "20"}`,
-                }}
-              >
-                <img className="exp-category__icon" src={meta.icon} alt={category} width="40" height="40" />
-                <div className="exp-category__info">
-                  <span className="exp-category__name" style={{ color: data.textColor }}>
-                    {category}
-                  </span>
-                  <span className="exp-category__tagline" style={{ color: data.subtleColor }}>
-                    {meta.tagline}
-                  </span>
-                </div>
-                <span className="exp-category__count" style={{ background: data.accentColor }}>
-                  {items.length}
-                </span>
-                <span
-                  className={`exp-category__chevron ${isOpen ? "exp-category__chevron--open" : ""}`}
-                  style={{ color: data.accentColor }}
+              <div key={category} className="exp-category-item">
+                <button
+                  className={`exp-category__card ${isOpen ? "exp-category__card--open" : ""}`}
+                  onClick={() => setOpenCategory(isOpen ? null : category)}
+                  style={{
+                    background: isOpen ? `${data.accentColor}15` : data.cardBg,
+                    border: `1px solid ${isOpen ? data.accentColor + "50" : data.accentColor + "20"}`,
+                  }}
                 >
-                  ▾
-                </span>
-              </button>
+                  <img className="exp-category__icon" src={meta.icon} alt={category} width="40" height="40" />
+                  <div className="exp-category__info">
+                    <span className="exp-category__name" style={{ color: data.textColor }}>
+                      {category}
+                    </span>
+                    <span className="exp-category__tagline" style={{ color: data.subtleColor }}>
+                      {meta.tagline}
+                    </span>
+                  </div>
+                  <span className="exp-category__count" style={{ background: data.accentColor }}>
+                    {items.length}
+                  </span>
+                  <span
+                    className={`exp-category__chevron ${isOpen ? "exp-category__chevron--open" : ""}`}
+                    style={{ color: data.accentColor }}
+                  >
+                    ▾
+                  </span>
+                </button>
+
+                {/* Mobile-only: panel directly under its card */}
+                <div className={`exp-category__panel exp-category__panel--mobile ${isOpen ? "exp-category__panel--open" : ""}`}>
+                  {isOpen && (
+                    <div className="exp-category__roles">
+                      {items.map((exp, i) => (
+                        <ExpCard key={i} exp={exp} data={data} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             );
           })}
         </div>
 
-        {/* Expanded panel below all cards */}
-        <div className={`exp-category__panel ${openCategory ? "exp-category__panel--open" : ""}`}>
+        {/* Desktop-only: shared panel below all cards */}
+        <div className={`exp-category__panel exp-category__panel--desktop ${openCategory ? "exp-category__panel--open" : ""}`}>
           {openItems && (
             <div className="exp-category__roles">
               {openItems.map((exp, i) => (

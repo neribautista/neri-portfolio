@@ -47,12 +47,27 @@ function ToggleSwitch({ isPast, onToggle, present, past }) {
 
 export default function NavBar({ data, isPast, onToggle, present, past }) {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) setMenuOpen(false);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Close mobile menu on profile/era toggle
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [isPast]);
 
   const navBg = scrolled
     ? isPast
@@ -87,7 +102,25 @@ export default function NavBar({ data, isPast, onToggle, present, past }) {
         </span>
       </div>
 
-      <div className="nav__right">
+      {/* Hamburger button — mobile only */}
+      <button
+        className="nav__hamburger"
+        onClick={() => setMenuOpen((v) => !v)}
+        aria-label="Toggle menu"
+        style={{ color: data.textColor }}
+      >
+        <span className={`nav__hamburger-icon ${menuOpen ? "nav__hamburger-icon--open" : ""}`} />
+      </button>
+
+      <div className={`nav__right ${menuOpen ? "nav__right--open" : ""}`}
+        style={menuOpen ? { background: isPast ? "#fdfaf4" : "#141414" } : undefined}
+      >
+        <img
+          src="/profile.png"
+          alt="Profile"
+          className="nav__avatar"
+          title="Nerissa Bautista"
+        />
         <div className="nav__menu">
           {["About", "Experience", "Projects", "Skills", "Resume"].map((s) => (
             <a
@@ -95,6 +128,7 @@ export default function NavBar({ data, isPast, onToggle, present, past }) {
               href={`#${s.toLowerCase()}`}
               className="nav__link"
               style={{ color: data.subtleColor }}
+              onClick={() => setMenuOpen(false)}
               onMouseEnter={(e) => (e.target.style.color = data.textColor)}
               onMouseLeave={(e) => (e.target.style.color = data.subtleColor)}
             >
@@ -103,12 +137,6 @@ export default function NavBar({ data, isPast, onToggle, present, past }) {
           ))}
         </div>
         <ToggleSwitch isPast={isPast} onToggle={onToggle} present={present} past={past} />
-        <img
-          src="/profile.png"
-          alt="Profile"
-          className="nav__avatar"
-          title="Nerissa Bautista"
-        />
       </div>
     </nav>
   );

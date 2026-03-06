@@ -13,6 +13,8 @@ export default function ProfileSelector({ onSelect }) {
     <div className={`profile-selector ${clicked ? "profile-selector--exiting" : ""}`}>
       <div className="profile-selector__bg" />
 
+      <div className="profile-selector__logo">NB</div>
+
       <div className="profile-selector__content">
         <h1 className="profile-selector__heading">Do you want to see my portfolio?</h1>
 
@@ -34,11 +36,11 @@ export default function ProfileSelector({ onSelect }) {
             Nerissa
           </span>
         </button>
-      </div>
 
-      <div className="profile-selector__footer">
-        <p>Recruiter? Hiring Manager? Curious dev? — Pick a profile to continue.</p>
-        <p>Oh it's just me? Then just click the card </p>
+        <div className="profile-selector__footer">
+          <p>Recruiter? Hiring Manager? Curious dev? — Pick a profile to continue.</p>
+          <p>Oh it's just me? Then just click the card </p>
+        </div>
       </div>
     </div>
   );

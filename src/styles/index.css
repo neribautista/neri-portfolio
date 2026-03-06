@@ -80,6 +80,18 @@ html {
   pointer-events: none;
 }
 
+.profile-selector__logo {
+  position: absolute;
+  top: 24px;
+  left: 5vw;
+  font-size: 32px;
+  font-weight: 900;
+  font-family: Georgia, serif;
+  color: #E50914;
+  letter-spacing: -1px;
+  z-index: 1;
+}
+
 .profile-selector__content {
   position: relative;
   z-index: 1;
@@ -168,6 +180,32 @@ html {
   gap: 6px;
 }
 
+@media (max-width: 768px) {
+  .profile-selector {
+    padding: 24px 16px;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .profile-selector__heading {
+    font-size: clamp(22px, 6vw, 32px);
+    margin-bottom: 24px;
+    padding: 0 8px;
+  }
+
+  .profile-selector__avatar-wrapper {
+    width: 110px;
+    height: 110px;
+  }
+
+  .profile-selector__footer {
+    position: static;
+    margin-top: 40px;
+    font-size: 12px;
+    padding: 0 16px;
+  }
+}
+
 /* ─── NAV AVATAR ───────────────────────────────────────────────────────────── */
 
 .nav__avatar {
@@ -250,6 +288,114 @@ html {
   font-weight: 600;
   letter-spacing: 0.05em;
   transition: color 0.2s;
+}
+
+/* ─── HAMBURGER BUTTON (hidden on desktop) ─────────────────────────────────── */
+
+.nav__hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 28px;
+  height: 24px;
+  position: relative;
+  z-index: 1100;
+  padding: 0;
+}
+
+.nav__hamburger-icon,
+.nav__hamburger-icon::before,
+.nav__hamburger-icon::after {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform 0.3s, opacity 0.3s;
+  position: absolute;
+  left: 2px;
+}
+
+.nav__hamburger-icon {
+  top: 11px;
+}
+
+.nav__hamburger-icon::before {
+  content: "";
+  top: -7px;
+}
+
+.nav__hamburger-icon::after {
+  content: "";
+  top: 7px;
+}
+
+/* X animation when open */
+.nav__hamburger-icon--open {
+  background: transparent;
+}
+
+.nav__hamburger-icon--open::before {
+  transform: rotate(45deg);
+  top: 0;
+}
+
+.nav__hamburger-icon--open::after {
+  transform: rotate(-45deg);
+  top: 0;
+}
+
+/* ─── MOBILE NAV ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .nav__hamburger {
+    display: block;
+  }
+
+  .nav__right {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 70vw;
+    max-width: 300px;
+    height: 100vh;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 80px 32px 32px;
+    gap: 28px;
+    transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+    z-index: 1050;
+  }
+
+  .nav__right--open {
+    right: 0;
+  }
+
+  .nav__menu {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .nav__link {
+    font-size: 16px;
+  }
+
+  .toggle {
+    padding: 6px 0;
+  }
+
+  .nav__badge {
+    display: none;
+  }
+
+  .nav__avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
 }
 
 /* ─── TOGGLE SWITCH ────────────────────────────────────────────────────────── */
@@ -502,8 +648,12 @@ html {
   gap: 20px;
 }
 
-.exp-category__card {
+.exp-category-item {
   flex: 1;
+}
+
+.exp-category__card {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -581,9 +731,23 @@ html {
   padding: 8px 0 24px;
 }
 
+/* Desktop: hide mobile inline panels, show shared bottom panel */
+.exp-category__panel--mobile {
+  display: none;
+}
+
+/* Mobile: show inline panels, hide shared bottom panel */
 @media (max-width: 768px) {
   .exp-category-row {
     flex-direction: column;
+  }
+
+  .exp-category__panel--mobile {
+    display: block;
+  }
+
+  .exp-category__panel--desktop {
+    display: none;
   }
 }
 
