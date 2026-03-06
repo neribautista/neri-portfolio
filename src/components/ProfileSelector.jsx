@@ -36,11 +36,11 @@ export default function ProfileSelector({ onSelect }) {
             Nerissa
           </span>
         </button>
+      </div>
 
-        <div className="profile-selector__footer">
-          <p>Recruiter? Hiring Manager? Curious dev? — Pick a profile to continue.</p>
-          <p>Oh it's just me? Then just click the card </p>
-        </div>
+      <div className="profile-selector__footer">
+        <p>Recruiter? Hiring Manager? Curious dev? — Pick a profile to continue.</p>
+        <p>Oh it's just me? Then just click the card </p>
       </div>
     </div>
   );
