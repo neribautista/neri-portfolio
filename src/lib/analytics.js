@@ -1,20 +1,43 @@
-// Google Analytics 4. Loads only when VITE_GA_ID is set (e.g. G-XXXXXXXXXX in Vercel env vars),
-// so local dev and preview builds without the ID send nothing.
+// Analytics via Google Tag Manager (VITE_GTM_ID, e.g. GTM-XXXXXXX) or, if you skip GTM,
+// straight Google Analytics 4 (VITE_GA_ID, e.g. G-XXXXXXXXXX). Set one in Vercel env vars.
+// Nothing loads when neither is set, so local dev and previews send no data.
+const GTM_ID = import.meta.env.VITE_GTM_ID;
 const GA_ID = import.meta.env.VITE_GA_ID;
+let mode = null; // "gtm" | "ga" | null
 
-export function initAnalytics() {
-  if (!GA_ID || typeof window === "undefined" || window.gtag) return;
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag() {
-    window.dataLayer.push(arguments);
-  };
-  window.gtag("js", new Date());
-  window.gtag("config", GA_ID);
+function loadScript(src) {
   const s = document.createElement("script");
   s.async = true;
-  s.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+  s.src = src;
   document.head.appendChild(s);
+}
+
+export function initAnalytics() {
+  if (typeof window === "undefined" || mode) return;
+  window.dataLayer = window.dataLayer || [];
+  if (GTM_ID) {
+    mode = "gtm";
+    window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
+    loadScript(`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`);
+  } else if (GA_ID) {
+    mode = "ga";
+    window.gtag = function gtag() {
+      window.dataLayer.push(arguments);
+    };
+    window.gtag("js", new Date());
+    window.gtag("config", GA_ID);
+    loadScript(`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`);
+  } else {
+    return;
+  }
   trackClicks();
+}
+
+// Sends an event. With GTM it becomes a dataLayer event you can trigger tags on
+// (Trigger type: Custom Event); with GA4 it's a gtag event. No-op when analytics is off.
+export function track(event, params = {}) {
+  if (mode === "gtm") window.dataLayer.push({ event, ...params });
+  else if (mode === "ga") window.gtag("event", event, params);
 }
 
 // One listener for the whole page: every button or link click becomes a "button_click" event
@@ -41,9 +64,4 @@ function trackClicks() {
     },
     { capture: true }
   );
-}
-
-// Sends a GA4 event; a no-op when analytics isn't configured.
-export function track(event, params = {}) {
-  if (typeof window !== "undefined" && window.gtag) window.gtag("event", event, params);
 }
