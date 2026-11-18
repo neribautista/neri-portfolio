@@ -13,6 +13,7 @@ import AskNerissa from "./components/AskNerissa";
 import Plans from "./components/Plans";
 import QuoteModal from "./components/QuoteModal";
 import { scrollToSection } from "./lib/scroll";
+import { track } from "./lib/analytics";
 
 export default function App() {
   const [pickerOpen, setPickerOpen] = useState(true);
@@ -23,7 +24,15 @@ export default function App() {
 
   const project = PROJECTS.find((p) => p.id === projectId) || null;
 
-  const openAsk = useCallback((seed = null) => setAsk({ open: true, seed }), []);
+  const openAsk = useCallback((seed = null) => {
+    track("ask_nerissa_open");
+    setAsk({ open: true, seed });
+  }, []);
+  // Opens the quote popup: "" = plan picker, plan id = booking form for that plan.
+  const openQuote = useCallback((plan = "") => {
+    track("quote_open", { plan: plan || "picker" });
+    setQuotePlan(plan);
+  }, []);
   const anyOverlay = pickerOpen || !!project || ask.open || quotePlan !== null;
 
   // Lock page scroll behind overlays.
@@ -32,12 +41,12 @@ export default function App() {
   }, [anyOverlay]);
 
   const sections = {
-    trending: <Trending key="trending" onOpenProject={setProjectId} />,
+    trending: <Trending key="trending" onOpenProject={(id) => { track("project_open", { project: id }); setProjectId(id); }} />,
     about: <About key="about" />,
     lab: <AILab key="lab" />,
     experience: <Experience key="experience" />,
-    plans: <Plans key="plans" onQuote={setQuotePlan} />,
-    contact: <Contact key="contact" onAsk={openAsk} onQuote={() => setQuotePlan("")} />,
+    plans: <Plans key="plans" onQuote={openQuote} />,
+    contact: <Contact key="contact" onAsk={openAsk} onQuote={() => openQuote("")} />,
   };
 
   return (
@@ -47,7 +56,7 @@ export default function App() {
       <main>
         <Hero
           onStart={() => scrollToSection("trending")}
-          onQuote={() => setQuotePlan("")}
+          onQuote={() => openQuote("")}
           onAsk={() => openAsk()}
         />
         {SECTION_ORDER.map((id) => sections[id])}
@@ -58,7 +67,10 @@ export default function App() {
         <ProjectModal
           project={project}
           onClose={() => setProjectId(null)}
-          onOpenProject={setProjectId}
+          onOpenProject={(id) => {
+            track("project_open", { project: id });
+            setProjectId(id);
+          }}
         />
       )}
       {ask.open && (
