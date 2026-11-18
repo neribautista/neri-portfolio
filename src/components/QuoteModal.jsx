@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { PLANS, QUOTE_COPY, QUOTE_ENDPOINT, formatPrice } from "../data/quoteData";
 import PlanCard from "./PlanCard";
 import Icon from "./Icon";
+import { track } from "../lib/analytics";
 
 const TIME_SLOTS = Array.from({ length: 23 }, (_, i) => {
   const mins = 8 * 60 + i * 30; // 8:00 AM – 7:00 PM
@@ -57,6 +58,8 @@ export default function QuoteModal({ initialPlan, onClose }) {
       if (!res.ok) throw new Error(data.error || "Something went wrong.");
       setStatus({ state: "idle", error: "" });
       setStep(3);
+      // GA4 recommended event for a captured lead; mark it as a key event in GA.
+      track("generate_lead", { plan, value: chosen?.price || 0, currency: "USD", meeting_type: form.meetingType });
     } catch (err) {
       setStatus({
         state: "idle",
@@ -95,7 +98,7 @@ export default function QuoteModal({ initialPlan, onClose }) {
             </div>
             <p className="quote__note">{QUOTE_COPY.pickNote}</p>
             <div className="quote__actions">
-              <button className="btn btn--primary btn--lg" onClick={() => setStep(2)} data-autofocus>
+              <button className="btn btn--primary btn--lg" onClick={() => { track("plan_select", { plan }); setStep(2); }} data-autofocus>
                 Subscribe <Icon name="arrowRight" size={16} />
               </button>
               <button className="link-btn" onClick={() => { setPlan("unsure"); setStep(2); }}>
