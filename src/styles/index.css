@@ -1275,7 +1275,7 @@ ol {
 
 .about {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   gap: 40px 56px;
   align-items: center;
 }
@@ -2048,7 +2048,7 @@ ol {
     padding: 120px var(--gutter) 100px;
   }
   .about {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .about__photo {
     justify-self: center;
@@ -2628,4 +2628,114 @@ ol {
   .overlay:has(.quote) {
     padding: 12px;
   }
+}
+
+/* ─── Mobile accordions ───────────────────────────────────────────────────── */
+
+.timeline__toggle {
+  width: 100%;
+  text-align: left;
+  align-items: center;
+}
+.timeline__toggle .season__chev {
+  margin-left: 4px;
+}
+.timeline__toggle + .timeline__points {
+  margin-top: 14px;
+}
+.skills__group--acc {
+  border-top: 1px solid var(--line);
+}
+.skills__group--acc:last-child {
+  border-bottom: 1px solid var(--line);
+}
+.skills__toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 2px;
+  text-align: left;
+}
+.skills__toggle h4 {
+  margin: 0;
+  flex: 1;
+}
+.skills__count {
+  min-width: 24px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+.skills__group--acc .chips {
+  padding-bottom: 14px;
+}
+.plan__more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 8px 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.plan__more:hover {
+  color: #fff;
+}
+
+@media (max-width: 760px) {
+  .about__photo {
+    aspect-ratio: 4 / 3;
+    max-height: 300px;
+  }
+  .about__photo img {
+    object-position: 55% 25%;
+  }
+  /* Origin story: swipe sideways instead of a tall vertical list. */
+  .origin__track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 62%;
+    grid-template-columns: none;
+    gap: 14px;
+    padding: 8px 0 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .origin__track::-webkit-scrollbar {
+    display: none;
+  }
+  .origin__track::before {
+    left: 7px;
+    right: 0;
+    top: 15px;
+    bottom: auto;
+    width: auto;
+    height: 1px;
+    background: linear-gradient(90deg, var(--red), rgba(229, 9, 20, 0.2));
+  }
+  .origin__item {
+    scroll-snap-align: start;
+  }
+  .origin__dot {
+    position: relative;
+    left: 0;
+    top: 0;
+    margin-bottom: 14px;
+  }
+  .plan__body {
+    padding-bottom: 18px;
+  }
+  .plan__price {
+    margin-bottom: 4px;
+  }
+}
+.timeline__more {
+  margin: 6px 0 10px;
 }

@@ -1,10 +1,15 @@
 import { formatPrice } from "../data/quoteData";
+import { useState } from "react";
 import Icon from "./Icon";
+import { useMedia, MOBILE } from "../lib/useMedia";
 
 // Netflix-style plan card. `as="label"` makes the whole card a radio option in the popup.
 export default function PlanCard({ plan, selected, onSelect, action, as = "article" }) {
   const Tag = as;
   const [c1, c2] = plan.gradient;
+  const mobile = useMedia(MOBILE);
+  const [details, setDetails] = useState(false);
+  const showDetails = !mobile || details;
   return (
     <Tag className={`plan ${selected ? "is-selected" : ""}`} onClick={as === "label" ? undefined : onSelect}>
       {as === "label" && (
@@ -26,6 +31,8 @@ export default function PlanCard({ plan, selected, onSelect, action, as = "artic
           <strong>{formatPrice(plan.price)}</strong>
           <small>one-time · free quote</small>
         </p>
+        {showDetails && (
+        <>
         <dl className="plan__rows">
           {plan.rows.map(([k, v]) => (
             <div key={k}>
@@ -42,6 +49,23 @@ export default function PlanCard({ plan, selected, onSelect, action, as = "artic
             </li>
           ))}
         </ul>
+        </>
+        )}
+        {mobile && (
+          <button
+            type="button"
+            className="plan__more"
+            aria-expanded={details}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setDetails((d) => !d);
+            }}
+          >
+            {details ? "Hide details" : "See what's included"}
+            <Icon name="chevronDown" size={16} className={`season__chev ${details ? "is-open" : ""}`} />
+          </button>
+        )}
         {action}
       </div>
     </Tag>
