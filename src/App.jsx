@@ -1,56 +1,77 @@
-import { useState } from "react";
-import { PRESENT, PAST } from "./data/portfolioData";
+import { useCallback, useEffect, useState } from "react";
+import { SECTION_ORDER, PROJECTS } from "./data/siteData";
 import ProfileSelector from "./components/ProfileSelector";
 import NavBar from "./components/NavBar";
-import HeroSection from "./components/HeroSection";
-import EducationBanner from "./components/EducationBanner";
-import ExperienceSection from "./components/ExperienceSection";
-import ProjectsSection from "./components/ProjectsSection";
-import SkillsSection from "./components/SkillsSection";
-import ResumeSection from "./components/ResumeSection";
-import TransitionOverlay from "./components/TransitionOverlay";
-import Footer from "./components/Footer";
+import Hero from "./components/Hero";
+import Trending from "./components/Trending";
+import About from "./components/About";
+import AILab from "./components/AILab";
+import Experience from "./components/Experience";
+import Contact from "./components/Contact";
+import ProjectModal from "./components/ProjectModal";
+import AskNerissa from "./components/AskNerissa";
+import Plans from "./components/Plans";
+import QuoteModal from "./components/QuoteModal";
+import { scrollToSection } from "./lib/scroll";
 
 export default function App() {
-  const [profileSelected, setProfileSelected] = useState(false);
-  const [isPast, setIsPast] = useState(false);
-  const [transitioning, setTransitioning] = useState(false);
-  const [transitionDir, setTransitionDir] = useState("to-past");
-  const data = isPast ? PAST : PRESENT;
+  const [pickerOpen, setPickerOpen] = useState(true);
+  const [projectId, setProjectId] = useState(null);
+  const [ask, setAsk] = useState({ open: false, seed: null });
+  // null = closed, "" = open at plan picker, plan id = open at booking form for that plan
+  const [quotePlan, setQuotePlan] = useState(null);
 
-  const handleToggle = () => {
-    const dir = isPast ? "to-present" : "to-past";
-    setTransitionDir(dir);
-    setTransitioning(true);
-    setTimeout(() => {
-      setIsPast((p) => !p);
-      window.scrollTo({ top: 0, behavior: "instant" });
-      setTimeout(() => setTransitioning(false), 350);
-    }, 350);
+  const project = PROJECTS.find((p) => p.id === projectId) || null;
+
+  const openAsk = useCallback((seed = null) => setAsk({ open: true, seed }), []);
+  const anyOverlay = pickerOpen || !!project || ask.open || quotePlan !== null;
+
+  // Lock page scroll behind overlays.
+  useEffect(() => {
+    document.body.style.overflow = anyOverlay ? "hidden" : "";
+  }, [anyOverlay]);
+
+  const sections = {
+    trending: <Trending key="trending" onOpenProject={setProjectId} />,
+    about: <About key="about" />,
+    lab: <AILab key="lab" />,
+    experience: <Experience key="experience" />,
+    plans: <Plans key="plans" onQuote={setQuotePlan} />,
+    contact: <Contact key="contact" onAsk={openAsk} onQuote={() => setQuotePlan("")} />,
   };
 
   return (
-    <div
-      className="app"
-      style={{
-        "--accent": data.accentColor,
-        "--bg": data.bgColor,
-        "--text": data.textColor,
-        background: data.bgColor,
-        color: data.textColor,
-      }}
-    >
-      {!profileSelected && <ProfileSelector onSelect={() => setProfileSelected(true)} />}
+    <div className="app">
+      <NavBar onAsk={() => openAsk()} />
 
-      <TransitionOverlay visible={transitioning} direction={transitionDir} />
-      <NavBar data={data} isPast={isPast} onToggle={handleToggle} present={PRESENT} past={PAST} />
-      <HeroSection data={data} isPast={isPast} />
-      <EducationBanner data={data} />
-      <ExperienceSection data={data} isPast={isPast} />
-      <ProjectsSection data={data} />
-      <SkillsSection data={data} />
-      <ResumeSection data={data} />
-      <Footer data={data} isPast={isPast} />
+      <main>
+        <Hero
+          onStart={() => scrollToSection("trending")}
+          onQuote={() => setQuotePlan("")}
+          onAsk={() => openAsk()}
+        />
+        {SECTION_ORDER.map((id) => sections[id])}
+      </main>
+
+      {pickerOpen && <ProfileSelector onSelect={() => setPickerOpen(false)} />}
+      {project && (
+        <ProjectModal
+          project={project}
+          onClose={() => setProjectId(null)}
+          onOpenProject={setProjectId}
+        />
+      )}
+      {ask.open && (
+        <AskNerissa
+          seed={ask.seed}
+          onClose={() => setAsk({ open: false, seed: null })}
+          onOpenProject={(id) => {
+            setAsk({ open: false, seed: null });
+            setProjectId(id);
+          }}
+        />
+      )}
+      {quotePlan !== null && <QuoteModal initialPlan={quotePlan || null} onClose={() => setQuotePlan(null)} />}
     </div>
   );
 }
