@@ -1,155 +1,92 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { PROFILE } from "../data/siteData";
+import { scrollToSection } from "../lib/scroll";
+import Icon from "./Icon";
 
-function NetflixLogo({ color }) {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-      <text x="0" y="24" fontSize="26" fontWeight="900" fontFamily="Georgia,serif" fill={color} letterSpacing="-2">
-        N
-      </text>
-    </svg>
-  );
+export const NAV_ITEMS = [
+  { id: "home", label: "Home", icon: "home" },
+  { id: "trending", label: "Trending", icon: "flame" },
+  { id: "projects", label: "Projects", icon: "grid" },
+  { id: "ask", label: "Ask Nerissa", icon: "chat" },
+  { id: "about", label: "About", icon: "info" },
+  { id: "lab", label: "AI Lab", icon: "flask" },
+  { id: "experience", label: "Experience", icon: "timeline" },
+  { id: "plans", label: "Website Plans", icon: "rocket" },
+];
+
+// Tracks which section is under the nav bar.
+export function useActiveSection() {
+  const [active, setActive] = useState("home");
+  useEffect(() => {
+    const ids = NAV_ITEMS.map((n) => n.id).concat("contact");
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => e.isIntersecting && setActive(e.target.id));
+      },
+      { rootMargin: "-45% 0px -50% 0px" }
+    );
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) obs.observe(el);
+    });
+    return () => obs.disconnect();
+  }, []);
+  return active;
 }
 
-function ToggleSwitch({ isPast, onToggle, present, past }) {
-  return (
-    <button
-      className="toggle"
-      onClick={onToggle}
-      title={isPast ? "Switch to Present (Tech Era)" : "Switch to Past (Biz Era)"}
-    >
-      <span
-        className="toggle__label"
-        style={{
-          color: isPast ? past.accentColor : present.subtleColor,
-          opacity: isPast ? 1 : 0.5,
-        }}
-      >
-        {past.modeLabel}
-      </span>
-
-      <div className="toggle__track" style={{ background: isPast ? past.accentColor : present.accentColor }}>
-        <div className="toggle__thumb" style={{ left: isPast ? "27px" : "3px" }}>
-        </div>
-      </div>
-
-      <span
-        className="toggle__label"
-        style={{
-          color: isPast ? present.subtleColor : present.accentColor,
-          opacity: isPast ? 0.5 : 1,
-        }}
-      >
-        {present.modeLabel}
-      </span>
-    </button>
-  );
-}
-
-export default function NavBar({ data, isPast, onToggle, present, past }) {
-  const [scrolled, setScrolled] = useState(false);
+export default function NavBar({ onAsk }) {
+  const [shown, setShown] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const active = useActiveSection();
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setShown(window.scrollY > window.innerHeight * 0.55);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close mobile menu on resize to desktop
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 768) setMenuOpen(false);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Close mobile menu on profile/era toggle
-  useEffect(() => {
+  const go = (id) => {
     setMenuOpen(false);
-  }, [isPast]);
-
-  const navBg = scrolled
-    ? isPast
-      ? "rgba(253,250,244,0.97)"
-      : "rgba(20,20,20,0.97)"
-    : isPast
-    ? "linear-gradient(to bottom, rgba(253,250,244,0.95), transparent)"
-    : "linear-gradient(to bottom, rgba(20,20,20,0.95), transparent)";
+    if (id === "ask") return onAsk();
+    if (id === "home") return window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollToSection(id);
+  };
 
   return (
-    <nav
-      className={`nav ${scrolled ? "nav--scrolled" : ""}`}
-      style={{
-        background: navBg,
-        borderBottom: scrolled ? `1px solid ${isPast ? "#e8d5b0" : "#2a2a2a"}` : "none",
-      }}
-    >
-      <div className="nav__brand">
-        <NetflixLogo color={data.accentColor} />
-        <span className="nav__name" style={{ color: data.textColor }}>
-          BAUTISTA
-        </span>
-        <span
-          className="nav__badge"
-          style={{
-            color: data.accentColor,
-            background: `${data.accentColor}22`,
-            border: `1px solid ${data.accentColor}44`,
-          }}
-        >
-          {data.modeLabel}
-        </span>
-      </div>
+    <header className={`topnav ${shown ? "topnav--shown" : ""} ${menuOpen ? "topnav--open" : ""}`}>
+      <button className="brand" onClick={() => go("home")} aria-label="Back to top">
+        NERISSA
+      </button>
 
-      {/* Mobile: compact toggle + hamburger */}
-      <div className="nav__mobile-actions">
-        <button
-          className="toggle toggle--compact"
-          onClick={onToggle}
-          title={isPast ? "Switch to Tech Era" : "Switch to Biz Era"}
-        >
-          <div className="toggle__track" style={{ background: isPast ? past.accentColor : present.accentColor }}>
-            <div className="toggle__thumb" style={{ left: isPast ? "27px" : "3px" }} />
-          </div>
+      <nav className="topnav__links" aria-label="Sections">
+        {NAV_ITEMS.map((n) => (
+          <button
+            key={n.id}
+            className={`topnav__link ${active === n.id ? "is-active" : ""}`}
+            onClick={() => go(n.id)}
+          >
+            {n.label}
+          </button>
+        ))}
+      </nav>
+
+      <div className="topnav__right">
+        <button className="icon-btn" onClick={onAsk} aria-label="Ask Nerissa AI">
+          <Icon name="search" size={19} />
         </button>
-
         <button
-          className="nav__hamburger"
-          onClick={() => setMenuOpen((v) => !v)}
-          aria-label="Toggle menu"
-          style={{ color: data.textColor }}
+          className="topnav__avatar"
+          onClick={() => go("about")}
+          title="About Nerissa"
+          aria-label="About Nerissa"
         >
-          <span className={`nav__hamburger-icon ${menuOpen ? "nav__hamburger-icon--open" : ""}`} />
+          <img src={PROFILE.photos.avatar} alt="" />
+        </button>
+        <button className="icon-btn topnav__menu" onClick={() => setMenuOpen((o) => !o)} aria-label="Menu" aria-expanded={menuOpen}>
+          <Icon name={menuOpen ? "close" : "menu"} size={22} />
         </button>
       </div>
-
-      <div className={`nav__right ${menuOpen ? "nav__right--open" : ""}`}
-        style={menuOpen ? { background: isPast ? "#fdfaf4" : "#141414" } : undefined}
-      >
-        <img
-          src="/profile.png"
-          alt="Profile"
-          className="nav__avatar"
-          title="Nerissa Bautista"
-        />
-        <div className="nav__menu">
-          {["About", "Experience", "Projects", "Skills", "Resume"].map((s) => (
-            <a
-              key={s}
-              href={`#${s.toLowerCase()}`}
-              className="nav__link"
-              style={{ color: data.subtleColor }}
-              onClick={() => setMenuOpen(false)}
-              onMouseEnter={(e) => (e.target.style.color = data.textColor)}
-              onMouseLeave={(e) => (e.target.style.color = data.subtleColor)}
-            >
-              {s.toUpperCase()}
-            </a>
-          ))}
-        </div>
-        <ToggleSwitch isPast={isPast} onToggle={onToggle} present={present} past={past} />
-      </div>
-    </nav>
+    </header>
   );
 }
